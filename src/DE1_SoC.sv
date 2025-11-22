@@ -25,12 +25,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 			 .VGA_R, .VGA_G, .VGA_B, .VGA_BLANK_N,
 			 .VGA_CLK, .VGA_HS, .VGA_SYNC_N, .VGA_VS);
 	
-	// always_ff @(posedge CLOCK_50) begin
-	// 	r <= SW[7:0];
-	// 	g <= x[7:0];
-	// 	b <= y[7:0];
-	// end
-	
 	assign HEX0 = '1;
 	assign HEX1 = '1;
 	assign HEX2 = '1;
