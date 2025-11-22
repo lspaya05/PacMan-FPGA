@@ -19,6 +19,8 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	logic [9:0] x;
 	logic [8:0] y;
 	logic [7:0] r, g, b;
+
+	pixel_counter pc (.clk(CLOCK_50), .reset(reset), .x, .y);
 	
 	video_driver #(.WIDTH(640), .HEIGHT(480))
 		v1 (.CLOCK_50, .reset, .x, .y, .r, .g, .b,
@@ -39,17 +41,23 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	assign HEX5 = '1;
 	assign reset = 0;
 
-	// for game board: rom 768 addresses
-	// each address is a block
-	// each address stores a color value for that block
-	// if x,y = 1, write 1 to all x,y in the block associated with it 
-
-	logic board_color
-	logic block_num
-	// instantiate game board ROM
-	always_ff @(posedge CLOCK_50) begin
+	// there are 768 blocks in the game board
+	// initial game board rom has 768 addresses
+		// each address is a block
+		// each address holds info about what type of block it should be
+	// then there is a secondary rom that stores the pixels for each type of block
 		
-	end
+
+	logic [4:0] block_x; // 0 through 31
+	logic [4:0] block_y; // 0 through 23
+	logic [4:0] local_x; // 0 through 19, for each pixel in the block
+	logic [4:0] local_y; // 0 through 19, for each pixel in the block
+
+	assign block_x  = x / 20;        
+	assign block_y  = y / 20;        
+	assign local_x = x % 20;        
+	assign local_y = y % 20;        
+	
 	
 endmodule  // DE1_SoC
 
