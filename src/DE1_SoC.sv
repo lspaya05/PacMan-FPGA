@@ -50,7 +50,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
 
-	initial_board_rom mem_board (.address(block_y * 32 + block_x), .clock(CLOCK_50), .q(block_type));
+	board_RAM mem_board (.address(block_y * 32 + block_x), .clock(CLOCK_50), .data(1'b0), .wren(1'b0), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}

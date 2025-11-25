@@ -674,3 +674,4 @@ set_global_assignment -name MIF_FILE block_type_colors.mif
 set_global_assignment -name QIP_FILE type_rom.qip
 set_global_assignment -name MIF_FILE blocks_initial_board.mif
 set_global_assignment -name QIP_FILE initial_board_rom.qip
+set_global_assignment -name QIP_FILE board_RAM.qip
