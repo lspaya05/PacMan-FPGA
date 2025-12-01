@@ -3,8 +3,29 @@
 // Due Date: 12/07/2025
 // Class: EE 371
 
-//
+// This module determines the next position of the pink ghost, "pinky" whos behavior is based
+//      on the current position of pacman. Pinky aims to get 4 positions in front of pacman, and
+//      directly targets pacman when they are less than 4 spots away.
 
+// Note, the current position of the ghost is saved within this module.
+
+// Inputs:
+//      - clk: 1 bit clock input.
+//      - reset: 1 bit reset input
+//      - pacPosX: TODO bit input representing the X point of pacman.
+//      - pacPosY: TODO bit input representing the Y point of pacman.
+//      - userInput: 2-bit input that should be the user input to control pacman.
+//                      uses same encoding as output 'dirToMove'.
+//      - canMoveU: 1-bit input, when true character is allowed to move UP.
+//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
+//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
+//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
+// Outputs:
+//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
+//                  - 00: Up
+//                  - 01: Right
+//                  - 10: Down
+//                  - 11: Left
 module pinky_behavior (
     input clk, reset,
     input logic [: 0] pacPosX,
@@ -31,7 +52,7 @@ module pinky_behavior (
 
 
     always_comb begin
-        if (absDiffPosX < 4 | absDiffPosY < 4) begin
+        if (absDiffPosX > 4 | absDiffPosY > 4) begin
             case (userInput)
                 2'b00: begin 
                     targetPosX = pacPosX;

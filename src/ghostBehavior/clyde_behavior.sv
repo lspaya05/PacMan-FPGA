@@ -1,4 +1,29 @@
+// Name: Leonard Paya, Rhiannon Garnier
+// ID: 2200906, 2336462
+// Due Date: 12/07/2025
+// Class: EE 371
 
+// This module determines the next position of the orange ghost, "clyde" whos behavior is based 
+//      on the current position of pacman. Clyde chases pacman directly, but once he gets within 
+//      5 spaces of pac, Clyde 'runs away'.
+
+// Note, the current position of the ghost is saved within this module.
+
+// Inputs:
+//      - clk: 1 bit clock input.
+//      - reset: 1 bit reset input
+//      - pacPosX: TODO bit input representing the X point of pacman.
+//      - pacPosY: TODO bit input representing the Y point of pacman.
+//      - canMoveU: 1-bit input, when true character is allowed to move UP.
+//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
+//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
+//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
+// Outputs:
+//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
+//                  - 00: Up
+//                  - 01: Right
+//                  - 10: Down
+//                  - 11: Left
 module cylde_behavior (
     input clk, reset,
     input logic [: 0] pacPosX,
@@ -11,34 +36,29 @@ module cylde_behavior (
     logic [: 0] targetPosX,
     logic [: 0] targetPosY,
 
+    logic signed [ : 0] diffPosX;
+    logic signed [ : 0] diffPosY;
+
+    logic [ : 0] absDiffPosX;
+    logic [ : 0] absDiffPosY;
+
+    assign diffPosX = pacPosX - ghostPosX;
+    assign diffPosY = pacPosY - ghostPosY;
+
+    assign absDiffPosX = (diffPosX < 0) ? -diffPosX : diffPosX; 
+    assign absDiffPosY = (diffPosY < 0) ? -diffPosY : diffPosY; 
+
+
     always_comb begin
-        case (userInput)
-            2'b00: begin 
-                targetPosX = pacPosX;
-                targetPosY = pacPosY - 4;
-            end 
-
-            2'b01: begin
-                targetPosX = pacPosX + 4;
-                targetPosY = pacPosY;
-            end
-
-            2'b10: begin 
-                targetPosX = pacPosX;
-                targetPosY = pacPosY + 4;
-            end
-
-            2'b11: begin 
-                targetPosX = pacPosX - 4;
-                targetPosY = pacPosY;
-            end
-
-            default: begin 
-                targetPosX = pacPosX;
-                targetPosY = pacPosY;
-            end 
-        endcase
+       if (absDiffPosX < 5 | absDiffPosY < 5) begin
+            targetPosX = ~pacPosX;
+            targetPosY = ~pacPosY;
+       end else begin
+            targetPosX = pacPosX;
+            targetPosY = pacPosY;
+       end 
+        
     end
     
-    ghost_behavior pinky (.*);
+    ghost_behavior cylde (.*);
 endmodule

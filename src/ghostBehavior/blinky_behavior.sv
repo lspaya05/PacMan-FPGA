@@ -4,7 +4,26 @@
 // Class: EE 371
 
 // This module determines the next position of the red ghost, "blinky" who's behavior is based
-//      on the current position of pacman. Blinky directly targets pacman, taking the path that 
+//      on the current position of pacman. Blinky directly targets pacman, taking the path that
+//      leads most directly to pacman.
+
+// Note, the current position of the ghost is saved within this module.
+
+// Inputs:
+//      - clk: 1 bit clock input.
+//      - reset: 1 bit reset input
+//      - pacPosX: TODO bit input representing the X point of pacman.
+//      - pacPosY: TODO bit input representing the Y point of pacman.
+//      - canMoveU: 1-bit input, when true character is allowed to move UP.
+//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
+//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
+//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
+// Outputs:
+//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
+//                  - 00: Up
+//                  - 01: Right
+//                  - 10: Down
+//                  - 11: Left
 module blinky_behavior (
     input clk, reset,
     input logic [: 0] pacPosX,

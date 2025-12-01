@@ -3,6 +3,26 @@
 // Due Date: 12/07/2025
 // Class: EE 371
 
+//TODO 
+
+// Note, the current position of the ghost is saved within this module, and the initial position
+//  is declared here.
+
+// Inputs:
+//      - clk: 1 bit clock input.
+//      - reset: 1 bit reset input
+//      - userInput: 2-bit input that should be the user input to control pacman.
+//                      uses same encoding as output 'dirToMove'.
+//      - canMoveU: 1-bit input, when true character is allowed to move UP.
+//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
+//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
+//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
+// Outputs:
+//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
+//                  - 00: Up
+//                  - 01: Right
+//                  - 10: Down
+//                  - 11: Left
 module ghost_behavior (
     input clk, reset,
     input logic [: 0] targetPosX,
