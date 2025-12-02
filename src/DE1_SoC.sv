@@ -74,6 +74,8 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	logic [9:0] inky_next;
 	logic [9:0] pinky_next;
 
+	// AND pac with all the ghosts, if any are true, end game
+
 	logic [4:0] block_x; // 0 through 31
 	logic [4:0] block_y; // 0 through 23
 	logic [4:0] local_x; // 0 through 19, for each pixel in the block
@@ -95,13 +97,51 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
-	// controls PacMan
-	pac_man_behavior pac (.clk(), .reset(reset), .up(up), .down(down), .left(left), .right(right), .curr_block(pac_loc),
-						  .next_block(), .initial_block());
+	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), .canMove(), 
+							.curr_block(pac_loc), .temp_next(pac_temp_next), .next_block(pac_next), .initial_block());
+
+	enum {update_pac, update_blinky, update_clyde, update_inky, update_pinky} ps, ns;
+
+	always_comb begin
+		case (ps)
+			update_pac: begin
+				ns <= update_blinky;
+				writeAddress <= pac_loc;
+			end 
+			update_blinky: begin
+				ns <= update_clyde;
+				writeAddress <= blinky_loc;
+			end 
+			update_clyde: begin
+				ns <= update_inky;
+				writeAddress <= clyde_loc;
+			end 
+			update_inky: begin
+				ns <= update_pinky;
+				writeAddress <= inky_loc;
+			end 
+			update_pinky: begin
+				ns <= update_pac;
+				writeAddress <= pinky_loc;
+			end 
+		endcase
+	end 
 
 	always_ff @(posedge CLOCK_50) begin
-		// if next_block is not a blue type, pac_loc <= pac_next;
-		// somehow update pac_loc block and pac_next block
+		if (reset) ps <= update_pac;
+		else ps <= ns;
+	end
+
+	// use enabled dff (if ALL are done, the update)
+	always_ff @(posedge clk) begin
+		if (reset) 
+		else begin
+			pac_loc <= pac_next;
+			blinky_loc <= blinky_next;
+			clyde_loc <= clyde_next;
+			inky_loc <= inky_next;
+			pinky_loc <= pinky_next;
+		end
 	end
 	
 	
