@@ -12,6 +12,9 @@
 // Inputs:
 //      - clk: 1 bit clock input.
 //      - reset: 1 bit reset input
+//      - update: 1 bit signal that signals the current position of the ghost should be updated.
+//      - intPosX: TODO bit input representing the intial X coordinate to start the ghost at.
+//      - intPosY: TODO bit input representing the intial Y coordinate to start the ghost at.
 //      - pacPosX: TODO bit input representing the X point of pacman.
 //      - pacPosY: TODO bit input representing the Y point of pacman.
 //      - canMoveU: 1-bit input, when true character is allowed to move UP.
@@ -25,7 +28,9 @@
 //                  - 10: Down
 //                  - 11: Left
 module blinky_behavior (
-    input clk, reset,
+    input clk, reset, update,
+    input logic [: 0] intPosX,
+    input logic [: 0] intPosY,
     input logic [: 0] pacPosX,
     input logic [: 0] pacPosY,
     input logic canMoveU, canMoveR, canMoveD, canMoveL

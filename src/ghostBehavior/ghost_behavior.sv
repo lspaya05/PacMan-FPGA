@@ -3,7 +3,9 @@
 // Due Date: 12/07/2025
 // Class: EE 371
 
-//TODO 
+// This is a general ghost direction module that takes in valid directions to move a spot, and 
+//      some target coordinate. This module then outputs the direction to move the ghost. Either
+//      up, down, left, or right.
 
 // Note, the current position of the ghost is saved within this module, and the initial position
 //  is declared here.
@@ -11,8 +13,11 @@
 // Inputs:
 //      - clk: 1 bit clock input.
 //      - reset: 1 bit reset input
-//      - userInput: 2-bit input that should be the user input to control pacman.
-//                      uses same encoding as output 'dirToMove'.
+//      - update: 1 bit signal that signals the current position of the ghost should be updated.
+//      - intPosX: TODO bit input representing the intial X coordinate to start the ghost at.
+//      - intPosY: TODO bit input representing the intial Y coordinate to start the ghost at.
+//      - targetPosX: TODO bit input representing the X coordinate of the target to move towards.
+//      - targetPosY: TODO bit input representing the Y coordinate of the target to move towards.
 //      - canMoveU: 1-bit input, when true character is allowed to move UP.
 //      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
 //      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
@@ -24,7 +29,9 @@
 //                  - 10: Down
 //                  - 11: Left
 module ghost_behavior (
-    input clk, reset,
+    input clk, reset, update,
+    input logic [: 0] intPosX,
+    input logic [: 0] intPosY,
     input logic [: 0] targetPosX,
     input logic [: 0] targetPosY,
     input logic canMoveU, canMoveR, canMoveD, canMoveL
@@ -47,6 +54,7 @@ module ghost_behavior (
     assign shouldMoveU = diffPosY < 0;
     assign shouldMoveR = diffPosX > 0;
 
+    // Valid next Position Logic.
     always_comb begin
         case ({shouldMoveU, shouldMoveR})
             2'b00: begin
@@ -104,7 +112,37 @@ module ghost_behavior (
             end
 
         endcase
-
-
     end //always_comb
+
+    // Next Position Flip Flops.
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            ghostPosX <= intPosX;
+            ghostPosY <= intPosY;
+        end 
+
+        // Moves Ghost Up:
+        if (update && dirToMove == 0) begin
+            ghostPosX <= ghostPosX;
+            ghostPosY <= ghostPosY - 1;
+        end
+
+        // Moves Ghost to the right:
+        if (update && dirToMove == 1) begin
+            ghostPosX <= ghostPosX + 1;
+            ghostPosY <= ghostPosY;
+        end
+
+        // Moves Ghost Down:
+        if (update && dirToMove == 2) begin
+            ghostPosX <= ghostPosX;
+            ghostPosY <=ghostPosY + 1;
+        end
+
+        // Moves Ghost to the left:
+        if (update && dirToMove == 3) begin
+            ghostPosX <= ghostPosX - 1;
+            ghostPosY <= ghostPosY;
+        end
+    end // always_ff
 endmodule
