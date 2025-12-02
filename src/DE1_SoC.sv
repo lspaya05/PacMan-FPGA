@@ -1,9 +1,10 @@
 module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
-					 CLOCK_50, VGA_R, VGA_G, VGA_B, VGA_BLANK_N, VGA_CLK, VGA_HS, VGA_SYNC_N, VGA_VS);
+					 CLOCK_50, VGA_R, VGA_G, VGA_B, VGA_BLANK_N, VGA_CLK, VGA_HS, VGA_SYNC_N, VGA_VS, V_GPIO);
 	output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 	output logic [9:0] LEDR;
 	input logic [3:0] KEY;
 	input logic [9:0] SW;
+	inout [35:0] V_GPIO;
 
 	input CLOCK_50;
 	output [7:0] VGA_R;
@@ -33,11 +34,45 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	assign HEX5 = '1;
 	assign reset = 0;
 
-	// there are 768 blocks in the game board
-	// initial game board rom has 768 addresses
-		// each address is a block
-		// each address holds info about what type of block it should be
-	// then there is a secondary rom that stores the pixels for each type of block
+	wire up;
+    wire down;
+    wire left;
+    wire right;
+    wire a;
+    wire b;
+
+    wire latch;
+    wire pulse;
+    
+    assign V_GPIO[27] = pulse;
+    assign V_GPIO[26] = latch;
+
+	n8_driver driver(
+        .clk(CLOCK_50),
+        .data_in(V_GPIO[28]),
+        .latch(latch),
+        .pulse(pulse),
+        .up(up),
+        .down(down),
+        .left(left),
+        .right(right),
+        .select(LEDR[9]),
+        .start(LEDR[8]),
+        .a(a),
+        .b(b)
+    );
+
+	// PacMan and ghosts locations
+	logic [9:0] pac_loc;
+	logic [9:0] blinky_loc;
+	logic [9:0] clyde_loc;
+	logic [9:0] inky_loc;
+	logic [9:0] pinky_loc;
+	logic [9:0] pac_next;
+	logic [9:0] blinky_next;
+	logic [9:0] clyde_next;
+	logic [9:0] inky_next;
+	logic [9:0] pinky_next;
 
 	logic [4:0] block_x; // 0 through 31
 	logic [4:0] block_y; // 0 through 23
@@ -50,11 +85,24 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW,
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
 
+	// there are 768 blocks in the game board
+	// initial game board RAM has 768 addresses
+		// each address is a block
+		// each address holds info about what type of block it should be
 	board_RAM mem_board (.address(block_y * 32 + block_x), .clock(CLOCK_50), .data(1'b0), .wren(1'b0), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
+
+	// controls PacMan
+	pac_man_behavior pac (.clk(), .reset(reset), .up(up), .down(down), .left(left), .right(right), .curr_block(pac_loc),
+						  .next_block(), .initial_block());
+
+	always_ff @(posedge CLOCK_50) begin
+		// if next_block is not a blue type, pac_loc <= pac_next;
+		// somehow update pac_loc block and pac_next block
+	end
 	
 	
 endmodule  // DE1_SoC
