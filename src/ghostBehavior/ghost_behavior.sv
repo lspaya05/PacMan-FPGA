@@ -41,7 +41,8 @@ module ghost_behavior (
 
     logic [ : 0] ghostPosX;
     logic [ : 0] ghostPosY;
-
+    logic [ : 0] targetPosX;
+    logic [ : 0] targetPosY;
 
     logic signed [ : 0] diffPosX;
     logic signed [ : 0] diffPosY;

@@ -15,10 +15,11 @@ vlib work
 #    their own "vlog" line below.
 
 # Source: vlog "../src/" 
-vlog "../src/" 
+vlog "../src/romFile.sv" 
+
 
 # Testbench: vlog "../tb/"
-vlog "../tb/"
+vlog "../tb/romFile_tb.sv"
 
 
 # Call vsim to invoke simulator
@@ -26,13 +27,13 @@ vlog "../tb/"
 #    the testbench module you want to execute.
 #  - If you need the altera_mf_ver library, add "-Lf altera_mf_lib"
 #    (no quotes) to the end of the vsim command
-vsim -voptargs="+acc" -t 1ps -lib work _tb
+vsim -voptargs="+acc" -t 1ps -lib work romFile_tb
 
 
 # Source the wave do file
 #  - This should be the file that sets up the signal window for
 #    the module you are testing.
-do 
+do romFile_wave.do
 
 
 # Set the window types
