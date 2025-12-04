@@ -16,7 +16,7 @@
 //              Data to read from the register file.
 
 module romFile_tb();
-    parameter int DATA_WIDTH = 22;
+    parameter int DATA_WIDTH = 32;
     parameter int ADDR_WIDTH = 5;
     parameter int NUM_READ = 4;
 
