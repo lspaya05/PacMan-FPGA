@@ -10,14 +10,14 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
     input logic up, down, left, right;
     input logic [9:0] curr_block;
     output logic [9:0] next_block;
-    logic temp_next;
+    logic [9:0] temp_next;
     logic [4:0] temp_block_addr [0:0];
     logic [31:0] data_from_rom [0:0];
     logic canMove;
 
     // combinational logic to determine if the next block is valid
     assign temp_block_addr[0] = temp_next / 32;
-    assign canMove = !(data_from_rom[0] % 32);
+    assign canMove = !(data_from_rom[0][temp_next % 32]);
 
     romFile #(.DATA_WIDTH(32), .ADDR_WIDTH(5), .NUM_READ(1)) validSpace (.r_addr(temp_block_addr), .r_data(data_from_rom));
 
@@ -26,13 +26,13 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
         temp_next = curr_block;
 
         case ({up, down, left, right})
-            2'b0001: 
+            4'b0001: 
                 temp_next = curr_block + 1;
-            2'b0010: 
+            4'b0010: 
                 temp_next = curr_block - 1;
-            2'b0100: 
+            4'b0100: 
                 temp_next = curr_block + 32;
-            2'b1000: 
+            4'b1000: 
                 temp_next = curr_block - 32;
         endcase
     end

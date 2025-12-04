@@ -17,7 +17,7 @@ module serial_driver #(int BITS)
     reg[BITS-1:0] temp; // The register to be saved. 
                    
     reg save; // Either 1 (saving temp[7:0] to LED's 0:7) or 0 (not saving)
-
+    reg [BITS:0] count; // counter... 30 low number of positions (e.g. 0..30)
 
     //pulse and latch generation
     always@* begin
@@ -76,7 +76,6 @@ module serial_driver #(int BITS)
     reg [SPEED:0] counter;
     always@(posedge clk) counter <= counter + 1;
 
-    reg [BITS:0] count; // counter... 30 low number of positions (e.g. 0..30)
     always@(posedge counter[SPEED]) begin
         if (count == MAX_STEPS+MAX_COUNT)
             count <= 0;

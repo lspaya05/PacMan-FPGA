@@ -14,6 +14,12 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	output VGA_SYNC_N;
 	output VGA_VS;
 
+	//For Clock Divider:
+    parameter whichClock = 15;
+	// set up clock 
+    logic [31:0] clk;
+	clock_divider cdiv (CLOCK_50, clk);
+
 	logic reset;
 	logic [9:0] x;
 	logic [8:0] y;
@@ -80,6 +86,10 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 
 	logic wren;
 	logic write_data;
+	logic [9:0] write_addr;
+
+	// for debugging
+	assign LEDR[0] = wren;
 
 	assign block_x  = x / 20;        
 	assign block_y  = y / 20;        
@@ -91,12 +101,13 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	board_RAM mem_board (.address(write_addr), .clock(CLOCK_50), .data(write_data), .wren(wren), .q(block_type));
+	board_RAM mem_board (.address(block_y * 32 + block_x), .clock(CLOCK_50), .data(write_data), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
+	// slower clock?
 	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next));
 
@@ -122,77 +133,11 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 			else wren <= 0;
 	end
 
-	// enum {update_pac, update_blinky, update_clyde, update_inky, update_pinky} ps, ns;
-
-	// always_comb begin
-	// 	case (ps)
-	// 		update_pac: begin
-	// 			ns <= update_blinky;
-	// 			writeAddress <= pac_loc;
-	// 		end 
-	// 		update_blinky: begin
-	// 			ns <= update_clyde;
-	// 			writeAddress <= blinky_loc;
-	// 		end 
-	// 		update_clyde: begin
-	// 			ns <= update_inky;
-	// 			writeAddress <= clyde_loc;
-	// 		end 
-	// 		update_inky: begin
-	// 			ns <= update_pinky;
-	// 			writeAddress <= inky_loc;
-	// 		end 
-	// 		update_pinky: begin
-	// 			ns <= update_pac;
-	// 			writeAddress <= pinky_loc;
-	// 		end 
-	// 	endcase
-	// end 
-
-	// always_ff @(posedge CLOCK_50) begin
-	// 	if (reset) ps <= update_pac;
-	// 	else ps <= ns;
-	// end
-
-	// // use enabled dff (if ALL are done, the update)
-	// always_ff @(posedge clk) begin
-	// 	if (reset) 
-	// 	else begin
-	// 		pac_loc <= pac_next;
-	// 		blinky_loc <= blinky_next;
-	// 		clyde_loc <= clyde_next;
-	// 		inky_loc <= inky_next;
-	// 		pinky_loc <= pinky_next;
-	// 	end
-	// end
+	
 	
 	
 endmodule  // DE1_SoC
 
 
-`timescale 1 ps / 1 ps
-module DE1_SoC_testbench ();
-	logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-	logic [9:0] LEDR;
-	logic CLOCK_50;
-	logic [7:0] VGA_R, VGA_G, VGA_B;
-	logic VGA_BLANK_N, VGA_CLK, VGA_HS, VGA_SYNC_N, VGA_VS, V_GPIO;
-	
-	// instantiate module
-	DE1_SoC dut (.*);
-	
-	// create simulated clock
-	parameter T = 20;
-	initial begin
-		CLOCK_50 <= 0;
-		forever #(T/2) CLOCK_50 <= ~CLOCK_50;
-	end  // clock initial
-	
-	// simulated inputs
-	initial begin
-		
-		$stop();
-	end  // inputs initial
-	
-endmodule  // DE1_SoC_testbench
+
 
