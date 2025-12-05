@@ -17,7 +17,7 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
 
     // combinational logic to determine if the next block is valid
     assign temp_block_addr[0] = temp_next / 32;
-    assign canMove = !(data_from_rom[0][temp_next % 32]);
+    assign canMove = !(data_from_rom[0][31 - (temp_next % 32)]);
 
     romFile #(.DATA_WIDTH(32), .ADDR_WIDTH(5), .NUM_READ(1)) validSpace (.r_addr(temp_block_addr), .r_data(data_from_rom));
 
