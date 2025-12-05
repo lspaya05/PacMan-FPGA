@@ -15,7 +15,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	output VGA_VS;
 
 	//For Clock Divider:
-    parameter whichClock = 15;
+    parameter whichClock = 20;
 	// set up clock 
     logic [31:0] clk;
 	clock_divider cdiv (CLOCK_50, clk);
@@ -99,13 +99,12 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	assign block_y  = y / 20;        
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
-	assign write_addr = block_y * 32 + block_x;
 
 	// there are 768 blocks in the game board
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	board_RAM mem_board (.address(write_addr), .clock(CLOCK_50), .data(write_data), .wren(wren), .q(block_type));
+	Board_RAM mem_board (.data(write_data), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
@@ -120,18 +119,45 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// assign ghost_eats_pac = 
 
 	// will probably need to implement done signal
-	always_ff @(negedge CLOCK_50) begin
-		if (reset) pac_loc <= 495;
-		//else if (done) begin
-		else if (write_addr == (pac_next)) begin
-				wren <= 1;
-				write_data <= 4'b0011;
-			end else if (write_addr == (pac_loc)) begin
-				wren <= 1;
-				write_data <= 4'b0000; // overwrite prev pac location with black
-			end
-			// else if ghosts
-			else wren <= 0;
+
+	enum {idle, clear_old, draw_pac, update} ps, ns;
+
+	always_comb begin
+		case (ps) 
+			idle: if (pac_next != pac_loc) ns = clear_old;
+					else ns = idle;
+			clear_old: 
+				ns = draw_pac;
+			draw_pac: ns = update;
+			update: 
+				ns = idle;
+		endcase
+	end 
+
+	always_ff @(posedge CLOCK_50) begin
+		if (reset) begin 
+			ps <= idle;
+		end
+		else ps <= ns;
+	end
+
+	always_ff @(posedge CLOCK_50) begin 
+		if (ps == idle) begin
+			wren <= 0;
+		end
+		if (ps == clear_old) begin
+			wren <= 1;
+			write_data <= 4'b0000;
+			write_addr <= pac_loc;
+		end
+		if (ps == draw_pac) begin
+			wren <= 1;
+			write_data <= 4'b0011;
+			write_addr <= pac_next;
+		end
+		if (ps == update) begin
+			pac_loc <= pac_next;
+		end
 	end
 	
 endmodule  // DE1_SoC
