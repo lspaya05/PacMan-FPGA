@@ -7,43 +7,13 @@
 //      on the current position of pacman. Inky aims to get in between pacman and blinky, and once
 //      less than 7 spaces away from pacman or when blinky is dead, Inky targets pacman directly.
 
-// Note, the current position of the ghost is saved within this module.
-
-// Inputs:
-//      - clk: 1 bit clock input.
-//      - reset: 1 bit reset input
-//      - update: 1 bit signal that signals the current position of the ghost should be updated.
-//      - intPosX: TODO bit input representing the intial X coordinate to start the ghost at.
-//      - intPosY: TODO bit input representing the intial Y coordinate to start the ghost at.
-//      - pacPosX: TODO bit input representing the X point of pacman.
-//      - pacPosY: TODO bit input representing the Y point of pacman.
-//      - blinkyPosX: TODO bit input representing the X point of blinky.
-//      - blinkyPosY: TODO bit input representing the Y point of blinky.
-//      - userInput: 2-bit input that should be the user input to control pacman.
-//                      uses same encoding as output 'dirToMove'.
-//      - canMoveU: 1-bit input, when true character is allowed to move UP.
-//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
-//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
-//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
-// Outputs:
-//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
-//                  - 00: Up
-//                  - 01: Right
-//                  - 10: Down
-//                  - 11: Left
 module inky_behavior (
-    input clk, reset, update,
-    input logic [: 0] intPosX,
-    input logic [: 0] intPosY,
-    input logic [: 0] pacPosX,
-    input logic [: 0] pacPosY,
-    input logic [ : 0] blinkyPosX,
-    input logic [ : 0] blinkyPosY,
+    input logic [9:0] currPos, pacPos, blinkyPos,
     input logic blinkyDead,
-    input logic [1 : 0] userInput,
-    input logic canMoveU, canMoveR, canMoveD, canMoveL,
+    input logic [31:0]surroundingContainBlock [3:0], 
 
-    output [1 : 0] dirToMove
+    output logic [3:0] surroundingBlockAddr [3:0];
+    output logic [9 : 0] nextPos
 );
 
     logic [: 0] targetPosX,
@@ -54,6 +24,16 @@ module inky_behavior (
 
     logic [ : 0] absDiffPosX;
     logic [ : 0] absDiffPosY;
+
+    logic [ : 0] pacPosX;
+    logic [ : 0] pacPosY;
+    logic [ : 0] blinkyPosX;
+    logic [ : 0] blinkyPosY;
+
+    assign pacPosX = pacPos % 32; 
+    assign pacPosY = pacPos / 32;
+    assign blinkyPosX = blinkyPos % 32;
+    assign blinkyPosY = blinkyPos / 32;
 
     assign diffPosX = pacPosX - blinkyPosX;
     assign diffPosY = pacPosY - blinkyPosY;
@@ -67,8 +47,7 @@ module inky_behavior (
             targetPosX = pacPosX + diffPosX;
             targetPosY = pacPosY + diffPosY;
         end else begin
-            targetPosX = pacPosX;
-            targetPosY = pacPosY;
+            targetPos = pacPos;
         end
     end
 

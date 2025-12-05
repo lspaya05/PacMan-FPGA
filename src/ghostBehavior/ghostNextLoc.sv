@@ -2,15 +2,19 @@ module ghostNextLoc(
     input logic [9:0] currPos, targetPos,
     input logic [21 : 0] surroundingContainBlock [3:0];
     output logic [4:0] surroundingBlockAddr [3:0];
-    output logic [9:0] nextPos,
+    output logic [9:0] nextPos
+    
+    // Does not need to be used for every Ghost implementation.
+    output logic [ : 0] ghostPosX;
+    output logic [ : 0] ghostPosY;
+    
 );
-    // Translate Addr into XY Coordinates:
-    logic [ : 0] ghostPosX;
-    logic [ : 0] ghostPosY;
+
     logic [ : 0] targetPosX;
     logic [ : 0] targetPosY;
-
-    assign ghostPosX = 
+    
+    // Translate Addr into XY Coordinates.
+    assign ghostPosX = targetPos % 32;
     assign ghostPosY = 
     assign targetPosX = 
     assign targetPosY = 
@@ -31,22 +35,22 @@ module ghostNextLoc(
     // Determine the direction the character can move in.
     logic posUp, posRight, posDown, posLeft;
 
-    assign posUp = (targetPos - 22);
+    assign posUp = (targetPos - 32);
     assign posRight = (targetPos + 1);
-    assign posDown = (targetPos + 22);
+    assign posDown = (targetPos + 32);
     assign posLeft = (targetPos - 1);
 
-    assign surroundingBlockAddr[0] = posUp / 22;
-    assign surroundingBlockAddr[1] = posRight / 22;
-    assign surroundingBlockAddr[2] = posDown / 22;
-    assign surroundingBlockAddr[3] = posLeft / 22;
+    assign surroundingBlockAddr[0] = posUp / 32;
+    assign surroundingBlockAddr[1] = posRight / 32;
+    assign surroundingBlockAddr[2] = posDown / 32;
+    assign surroundingBlockAddr[3] = posLeft / 32;
 
     logic canMoveD, canMoveL, canMoveR, canMoveU;
 
-    assign canMoveD = !(surroundingContainBlock[2][posDown % 22]);
-    assign canMoveL = !(surroundingContainBlock[3][posLeft % 22]);
-    assign canMoveR = !(surroundingContainBlock[1][posRight % 22]);
-    assign canMoveU = !(surroundingContainBlock[0][posUp % 22]);
+    assign canMoveD = !(surroundingContainBlock[2][posDown % 32]);
+    assign canMoveL = !(surroundingContainBlock[3][posLeft % 32]);
+    assign canMoveR = !(surroundingContainBlock[1][posRight % 32]);
+    assign canMoveU = !(surroundingContainBlock[0][posUp % 32]);
 
     // Valid next Position Logic.
     always_comb begin
@@ -61,7 +65,6 @@ module ghostNextLoc(
                 end else if (canMoveR) begin
                     nextPos = posRight;;
                 end
-
             end
 
             2'b01: begin
@@ -74,13 +77,12 @@ module ghostNextLoc(
                 end else if (canMoveL) begin
                     nextPos = posLeft;;
                 end
-
             end
 
 
             2'b10: begin
                 if (canMoveU) begin
-                    nextPos = posUp;;
+                    nextPos = posUp;
                 end else if (canMoveL) begin
                     nextPos = posLeft;;
                 end else if (canMoveD) begin
@@ -88,9 +90,7 @@ module ghostNextLoc(
                 end else if (canMoveR) begin
                     nextPos = posRight;;
                 end
-
             end
-
 
             2'b11: begin
                 if (canMoveU) begin
@@ -102,7 +102,6 @@ module ghostNextLoc(
                 end else if (canMoveL) begin
                     nextPos = posLeft;;
                 end
-
             end
 
         endcase

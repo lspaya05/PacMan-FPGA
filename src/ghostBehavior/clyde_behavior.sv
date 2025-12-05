@@ -7,48 +7,30 @@
 //      on the current position of pacman. Clyde chases pacman directly, but once he gets within 
 //      5 spaces of pac, Clyde 'runs away'.
 
-// Note, the current position of the ghost is saved within this module.
 
-// Inputs:
-//      - clk: 1 bit clock input.
-//      - reset: 1 bit reset input.
-//      - update: 1 bit signal that signals the current position of the ghost should be updated.
-//      - intPosX: TODO bit input representing the intial X coordinate to start the ghost at.
-//      - intPosY: TODO bit input representing the intial Y coordinate to start the ghost at.
-//      - pacPosX: TODO bit input representing the X point of pacman.
-//      - pacPosY: TODO bit input representing the Y point of pacman.
-//      - canMoveU: 1-bit input, when true character is allowed to move UP.
-//      - canMoveR: 1-bit input, when true character is allowed to move RIGHT.
-//      - canMoveD: 1-bit input, when true character is allowed to move DOWN.
-//      - canMoveL: 1-bit input, when true character is allowed to move LEFT.
-// Outputs:
-//      - dirToMove: 2-bit output that outlines which direction the ghost should move.
-//                  - 00: Up
-//                  - 01: Right
-//                  - 10: Down
-//                  - 11: Left
 module cylde_behavior (
-    input clk, reset, update,
-    input logic [: 0] intPosX,
-    input logic [: 0] intPosY,
-    input logic [: 0] pacPosX,
-    input logic [: 0] pacPosY,
-    input logic [1 : 0] userInput,
-    input logic canMoveU, canMoveR, canMoveD, canMoveL
+    input logic [9:0] currPos, pacPos,
+    input logic [31:0]surroundingContainBlock [3:0], 
 
-    output [1 : 0] dirToMove
+    output logic [3:0] surroundingBlockAddr [3:0];
+    output logic [9 : 0] nextPos
 );
-    logic [: 0] targetPosX,
-    logic [: 0] targetPosY,
+    logic [9:0] targetPos;
 
     logic signed [ : 0] diffPosX;
     logic signed [ : 0] diffPosY;
 
-    logic [ : 0] absDiffPosX;
-    logic [ : 0] absDiffPosY;
+    logic [ : 0] pacPosX;
+    logic [ : 0] pacPosY;
+
+    assign pacPosX = pacPos % 32; 
+    assign pacPosY = pacPos / 32;
 
     assign diffPosX = pacPosX - ghostPosX;
     assign diffPosY = pacPosY - ghostPosY;
+
+    logic [ : 0] absDiffPosX;
+    logic [ : 0] absDiffPosY;
 
     assign absDiffPosX = (diffPosX < 0) ? -diffPosX : diffPosX; 
     assign absDiffPosY = (diffPosY < 0) ? -diffPosY : diffPosY; 
@@ -56,14 +38,13 @@ module cylde_behavior (
 
     always_comb begin
        if (absDiffPosX < 5 | absDiffPosY < 5) begin
-            targetPosX = ~pacPosX;
-            targetPosY = ~pacPosY;
+            targetPos = ~pacPos;
        end else begin
-            targetPosX = pacPosX;
-            targetPosY = pacPosY;
+            targetPos = pacPos;
        end 
         
     end
     
-    ghost_behavior cylde (.*);
+    ghostNextLoc clyde (.currPos, .targetPos, .surroundingContainBlock, 
+                    .surroundingBlockAddr, .nextPos, .ghostPosX, .ghostPosY);
 endmodule
