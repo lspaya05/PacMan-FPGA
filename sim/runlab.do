@@ -37,7 +37,7 @@ vlog "../tb/DE1_SoC_tb.sv"
 #    the testbench module you want to execute.
 #  - If you need the altera_mf_ver library, add "-Lf altera_mf_lib"
 #    (no quotes) to the end of the vsim command
-vsim -voptargs="+acc" -t 1ps -lib work DE1_SoC_tb -Lf altera_mf_ver
+vsim -voptargs="+acc" -t 1ps -lib work DE1_SoC_tb -Lf altera_mf_ver 
 
 
 

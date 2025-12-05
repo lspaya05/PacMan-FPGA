@@ -36,13 +36,11 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	assign HEX3 = '1;
 	assign HEX4 = '1;
 	assign HEX5 = '1;
-	assign reset = 0;
 
 	wire up;
     wire down;
     wire left;
     wire right;
-    wire a1;
     wire b1;
 
     wire latch;
@@ -50,6 +48,8 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
     
     assign V_GPIO[27] = pulse;
     assign V_GPIO[26] = latch;
+	logic start;
+	logic select;
 
 	n8_driver driver(
         .clk(CLOCK_50),
@@ -60,9 +60,9 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
         .down(down),
         .left(left),
         .right(right),
-        .select(LEDR[9]),
-        .start(LEDR[8]),
-        .a(a1),
+        .select(select),
+        .start(start),
+        .a(reset),
         .b(b1)
     );
 
@@ -85,11 +85,15 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic [3:0] block_type; // the type of block to draw
 
 	logic wren;
-	logic write_data;
+	logic [3:0] write_data;
 	logic [9:0] write_addr;
 
 	// for debugging
 	assign LEDR[0] = wren;
+	assign LEDR[1] = write_data[0];
+	assign LEDR[2] = write_data[1];
+	assign LEDR[3] = write_data[2];
+	assign LEDR[4] = write_data[3];
 
 	assign block_x  = x / 20;        
 	assign block_y  = y / 20;        
@@ -101,14 +105,14 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	board_RAM mem_board (.address(block_y * 32 + block_x), .clock(CLOCK_50), .data(write_data), .wren(wren), .q(block_type));
+	board_RAM mem_board (.address(write_addr), .clock(CLOCK_50), .data(write_data), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
 	// slower clock?
-	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
+	pac_man_behavior pac (.clk(clk[whichClock]), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next));
 
 	logic ghost_eats_pac;
@@ -116,28 +120,18 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// assign ghost_eats_pac = 
 
 	// will probably need to implement done signal
-	always_ff @(posedge CLOCK_50) begin
-		if (ghost_eats_pac) begin
-			// somehow reset
-			wren <= 0;
-		end
+	always_ff @(negedge CLOCK_50) begin
+		if (reset) pac_loc <= 495;
 		//else if (done) begin
-		else if (write_addr == pac_next - 1) begin
+		else if (write_addr == (pac_next)) begin
 				wren <= 1;
 				write_data <= 4'b0011;
-			end else if (write_addr == pac_loc - 1) begin
+			end else if (write_addr == (pac_loc)) begin
 				wren <= 1;
 				write_data <= 4'b0000; // overwrite prev pac location with black
 			end
 			// else if ghosts
 			else wren <= 0;
 	end
-
-	
-	
 	
 endmodule  // DE1_SoC
-
-
-
-
