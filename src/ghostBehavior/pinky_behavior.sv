@@ -40,8 +40,6 @@ module pinky_behavior (
 
     output [1 : 0] dirToMove
 );
-    logic [: 0] targetPosX,
-    logic [: 0] targetPosY,
 
     logic signed [ : 0] diffPosX;
     logic signed [ : 0] diffPosY;
@@ -49,8 +47,18 @@ module pinky_behavior (
     logic [ : 0] absDiffPosX;
     logic [ : 0] absDiffPosY;
 
-    assign diffPosX = pacPosX - ghostPosX;
-    assign diffPosY = pacPosY - ghostPosY;
+    logic [ : 0] pacPosX;
+    logic [ : 0] pacPosY;
+    logic [ : 0] currPosX;
+    logic [ : 0] currPosY;
+    
+    assign pacPosX = pacPos % 32; 
+    assign pacPosY = pacPos / 32; 
+    assign currPosX = currPos % 32;
+    assign currPosY = currPos / 32;
+
+    assign diffPosX = pacPosX - currPosX;
+    assign diffPosY = pacPosY - currPosY;
 
     assign absDiffPosX = (diffPosX < 0) ? -diffPosX : diffPosX; 
     assign absDiffPosY = (diffPosY < 0) ? -diffPosY : diffPosY; 
@@ -58,38 +66,12 @@ module pinky_behavior (
 
     always_comb begin
         if (absDiffPosX > 4 | absDiffPosY > 4) begin
-            case (userInput)
-                2'b00: begin 
-                    targetPosX = pacPosX;
-                    targetPosY = pacPosY - 4;
-                end 
-
-                2'b01: begin
-                    targetPosX = pacPosX + 4;
-                    targetPosY = pacPosY;
-                end
-
-                2'b10: begin 
-                    targetPosX = pacPosX;
-                    targetPosY = pacPosY + 4;
-
-                end
-
-                2'b11: begin 
-                    targetPosX = pacPosX - 4;
-                    targetPosY = pacPosY;
-                end
-
-                default: begin 
-                    targetPosX = pacPosX;
-                    targetPosY = pacPosY;
-                end 
-            endcase
+            targetPos = ((pacPosY + diffPosY) * 32 + (pacPosX + diffPosX));
         end else begin
-            targetPosX = pacPosX;
-            targetPosY = pacPosY;
+            targetPos = pacPos;
         end
     end
 
-    ghost_behavior pinky (.*);
+    ghostNextLoc pinky (.currPos, .targetPos, .surroundingContainBlock,
+                        .surroundingBlockAddr, .nextPos, .ghostPosX, .ghostPosY);
 endmodule

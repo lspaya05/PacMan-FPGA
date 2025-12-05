@@ -16,9 +16,6 @@ module inky_behavior (
     output logic [9 : 0] nextPos
 );
 
-    logic [: 0] targetPosX,
-    logic [: 0] targetPosY,
-
     logic signed [ : 0] diffPosX;
     logic signed [ : 0] diffPosY;
 
@@ -44,8 +41,7 @@ module inky_behavior (
 
     always_comb begin
         if (absDiffPosX < 7 | absDiffPosY < 7 | !blinkyDead) begin
-            targetPosX = pacPosX + diffPosX;
-            targetPosY = pacPosY + diffPosY;
+            targetPos = (pacPosY + diffPosY) * 32 + (pacPosX + diffPosX);
         end else begin
             targetPos = pacPos;
         end
