@@ -95,7 +95,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
-	// slower clock?
 	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next), .start(start));
 
