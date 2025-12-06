@@ -68,15 +68,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 
 	// PacMan and ghosts locations
 	logic [9:0] pac_loc;
-	logic [9:0] blinky_loc;
-	logic [9:0] clyde_loc;
-	logic [9:0] inky_loc;
-	logic [9:0] pinky_loc;
 	logic [9:0] pac_next;
-	logic [9:0] blinky_next;
-	logic [9:0] clyde_next;
-	logic [9:0] inky_next;
-	logic [9:0] pinky_next;
 
 	logic [4:0] block_x; // 0 through 31
 	logic [4:0] block_y; // 0 through 23
@@ -107,18 +99,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next), .start(start));
 
-	logic ghost_eats_pac;
-	// implement logic where ghost and pac are in same block
-	// assign ghost_eats_pac = 
-
 	enum {idle, clear_old, draw_pac, update} ps, ns;
-
-	assign LEDR[0] = reset;
-	assign LEDR[1] = start;
-	assign LEDR[2] = (pac_loc != pac_next);
-	assign LEDR[3] = pac_loc[2];
-	assign LEDR[4] = pac_loc[1];
-	assign LEDR[5] = pac_loc[0];
 
 	always_comb begin
 		case (ps) 
