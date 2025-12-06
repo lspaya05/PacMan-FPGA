@@ -104,20 +104,25 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
 	// slower clock?
-	pac_man_behavior pac (.clk(clk[whichClock]), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
+	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next), .start(start));
 
 	logic ghost_eats_pac;
 	// implement logic where ghost and pac are in same block
 	// assign ghost_eats_pac = 
 
-	// will probably need to implement done signal
-
 	enum {idle, clear_old, draw_pac, update} ps, ns;
+
+	assign LEDR[0] = reset;
+	assign LEDR[1] = start;
+	assign LEDR[2] = (pac_loc != pac_next);
+	assign LEDR[3] = pac_loc[2];
+	assign LEDR[4] = pac_loc[1];
+	assign LEDR[5] = pac_loc[0];
 
 	always_comb begin
 		case (ps) 
-			idle: if (pac_next != pac_loc) ns = clear_old;
+			idle: if (pac_loc != pac_next) ns = clear_old;
 					else ns = idle;
 			clear_old: 
 				ns = draw_pac;
@@ -127,14 +132,22 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 		endcase
 	end 
 
-	always_ff @(posedge CLOCK_50) begin
+	always_ff @(posedge clk[whichClock]) begin
 		if (reset) begin 
 			ps <= idle;
 		end
 		else ps <= ns;
 	end
 
-	always_ff @(posedge CLOCK_50) begin 
+	always_ff @(posedge clk[whichClock]) begin 
+		if (reset) begin
+			pac_loc <= 495;
+			wren <= 0;
+		end
+		if (start) begin
+			pac_loc <= 495;
+			wren <= 0;
+		end
 		if (ps == idle) begin
 			wren <= 0;
 		end
