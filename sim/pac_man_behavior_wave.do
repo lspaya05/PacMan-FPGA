@@ -12,9 +12,9 @@ add wave -noupdate -radix unsigned /pac_man_behavior_tb/dut/temp_next
 add wave -noupdate -radix unsigned /pac_man_behavior_tb/dut/temp_block_addr
 add wave -noupdate /pac_man_behavior_tb/dut/data_from_rom
 add wave -noupdate /pac_man_behavior_tb/dut/canMove
-add wave -noupdate /pac_man_behavior_tb/dut/caseThing
+add wave -noupdate -radix unsigned /pac_man_behavior_tb/dut/temp_next_d
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {66 ps} 0}
+WaveRestoreCursors {{Cursor 1} {512 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -30,4 +30,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {1 ns}
+WaveRestoreZoom {425 ps} {1425 ps}

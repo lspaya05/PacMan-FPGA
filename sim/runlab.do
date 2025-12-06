@@ -26,11 +26,14 @@ vlog "../src/peripherals/vga_files/altera_up_avalon_video_vga_timing.v"
 vlog "../src/peripherals/vga_files/CLOCK25_PLL/CLOCK25_PLL_0002.v"
 vlog "../quartus/type_rom.v" 
 vlog "../quartus/board_RAM.v"
+vlog "../src/update_pac.sv" 
+vlog "../src/romFile_pac.sv" 
 
 # Testbench: vlog "../tb/"
 vlog "../tb/romFile_tb.sv"
 vlog "../tb/pac_man_behavior_tb.sv"
 vlog "../tb/DE1_SoC_tb.sv"
+vlog "../tb/update_pac_tb.sv"
 
 # Call vsim to invoke simulator
 #  - Make sure the last item on the line is the correct name of

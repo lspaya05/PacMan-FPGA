@@ -4,15 +4,16 @@
 // Class: EE 371
 
 
-module pac_man_behavior_tb ();
+module update_pac_tb ();
     
     logic clk, reset, start;
     logic up, down, left, right;
-    logic [9:0] curr_block;
-    logic [9:0] next_block;
+    logic [9:0] write_addr;
+    logic [3:0] write_data;
+    logic wren;
     parameter int CLOCK_DELAY = 50;
 
-    pac_man_behavior dut (.*);
+    update_pac dut (.*);
 
     //Sets up the clock 
     initial begin 
@@ -22,7 +23,9 @@ module pac_man_behavior_tb ();
 
     initial begin
         reset = 1;                                     @(posedge clk);
-        reset = 0;      curr_block = 495;                               @(posedge clk);
+        start = 1;
+        reset = 0;                                   @(posedge clk);
+        start = 0;
         up = 1; down = 0; left = 0; right = 0;         @(posedge clk);
         @(posedge clk);
         @(posedge clk);
@@ -32,24 +35,34 @@ module pac_man_behavior_tb ();
         up = 0; down = 0; left = 0; right = 1;         @(posedge clk);
         @(posedge clk);
         @(posedge clk);
-        curr_block = 496;
         @(posedge clk);
         @(posedge clk);
-        curr_block = 497;
         @(posedge clk);
-        curr_block = 498;   @(posedge clk);
-        curr_block = 499;   @(posedge clk);
-        curr_block = 500;   @(posedge clk);
-        curr_block = 501;   @(posedge clk);
-        curr_block = 502;   @(posedge clk);
-        curr_block = 503;   @(posedge clk);
-        curr_block = 504;   @(posedge clk);
-        curr_block = 505;   @(posedge clk);
-        curr_block = 506;   @(posedge clk);
-        curr_block = 507;   @(posedge clk);
-        curr_block = 495;   @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
         @(posedge clk); 
-        right = 0; down = 1;
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
         @(posedge clk); 
         @(posedge clk); 
         @(posedge clk); 

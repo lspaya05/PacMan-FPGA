@@ -14,7 +14,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	output VGA_SYNC_N;
 	output VGA_VS;
 
-	//For Clock Divider:
+	// For Clock Divider:
     parameter whichClock = 20;
 	// set up clock 
     logic [31:0] clk;
@@ -88,13 +88,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic [3:0] write_data;
 	logic [9:0] write_addr;
 
-	// for debugging
-	assign LEDR[0] = wren;
-	assign LEDR[1] = write_data[0];
-	assign LEDR[2] = write_data[1];
-	assign LEDR[3] = write_data[2];
-	assign LEDR[4] = write_data[3];
-
 	assign block_x  = x / 20;        
 	assign block_y  = y / 20;        
 	assign local_x = x % 20;        
@@ -111,8 +104,8 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
 	// slower clock?
-	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
-							.curr_block(pac_loc), .next_block(pac_next));
+	pac_man_behavior pac (.clk(clk[whichClock]), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
+							.curr_block(pac_loc), .next_block(pac_next), .start(start));
 
 	logic ghost_eats_pac;
 	// implement logic where ghost and pac are in same block
@@ -157,6 +150,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 		end
 		if (ps == update) begin
 			pac_loc <= pac_next;
+			wren <= 0;
 		end
 	end
 	
