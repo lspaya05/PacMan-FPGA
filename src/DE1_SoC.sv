@@ -171,18 +171,13 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	end //always_comb
 
 	always_ff @(posedge clk[whichClock]) begin
-		if (reset) begin 
+		if (start) begin 
 			ps <= idle;
 		end else 
 			ps <= ns;
 	end //always_ff
 
 	always_ff @(posedge clk[whichClock]) begin 
-		if (reset) begin
-			pac_loc <= 495;
-			wren <= 0;
-		end
-
 		if (start) begin
 			pac_loc <= 495;
 			wren <= 0;
