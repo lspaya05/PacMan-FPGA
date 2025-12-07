@@ -9,12 +9,16 @@
 
 
 module blinky_behavior (
-    input logic clk, reset,
-    input logic [9:0] currPos, pacPos,
-    output logic [9 : 0] nextPos
+    input logic clk, reset, start,
+    input logic [9:0] currPos, targetPos,
+    output logic [9:0] nextPos, 
+    output logic done, ready
 );
 
-    ghostNextLoc blinky (.currPos, .targetPos(pacPos), .surroundingContainBlock, 
-                    .surroundingBlockAddr, .nextPos, .ghostPosX, .ghostPosY);
+    ghostNextLoc blinky ( 
+    .clk, .reset, .start,
+    .currPos, .targetPos,
+    .nextPos, 
+    .done, .ready);
 
 endmodule
