@@ -79,26 +79,17 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic wren;
 	logic [3:0] write_data;
 	logic [9:0] write_addr;
-	logic hold;
-	logic [3:0] initial_data;
-	logic [9:0] overwrite_addr;
-	logic [3:0] write_data_final;
-	logic [9:0] write_addr_final;
 
 	assign block_x  = x / 20;        
 	assign block_y  = y / 20;        
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
 
-	// muxes for determining whether to reset board or continue updating the game
-	assign write_data_final = hold ? initial_data : write_data;
-	assign write_addr_final = hold ? overwrite_addr : write_addr;
-
 	// there are 768 blocks in the game board
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	Board_RAM mem_board (.data(write_data_final), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr_final), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
+	Board_RAM mem_board (.data(write_data), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
