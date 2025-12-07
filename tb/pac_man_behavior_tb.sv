@@ -86,6 +86,24 @@ module pac_man_behavior_tb ();
         @(posedge clk); 
         @(posedge clk); 
         @(posedge clk); 
+        curr_block = 294;  left = 1; down = 0; @(posedge clk);
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk);
+        left = 0; up = 1; @(posedge clk);
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk);
+        curr_block = 260;
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk); 
+        @(posedge clk);
 
         $stop;
     end

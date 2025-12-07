@@ -56,6 +56,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// End Clock Divider --------------------------------------------------------------------------
 
 	logic reset;
+	logic start;
 	logic [9:0] x;
 	logic [8:0] y;
 	logic [7:0] r, g, b;
@@ -95,7 +96,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
     
     assign V_GPIO[27] = pulse;
     assign V_GPIO[26] = latch;
-	logic start;
 
 	n8_driver driver(
         .clk(CLOCK_50),
