@@ -1,3 +1,9 @@
+
+// there are 768 blocks in the game board
+	// initial game board RAM has 768 addresses
+		// each address is a block
+		// each address holds info about what type of block it should be
+
 module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 					 CLOCK_50, VGA_R, VGA_G, VGA_B, VGA_BLANK_N, VGA_CLK, VGA_HS, VGA_SYNC_N, VGA_VS, V_GPIO);
 	output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
@@ -85,66 +91,35 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
 
-	// there are 768 blocks in the game board
-	// initial game board RAM has 768 addresses
-		// each address is a block
-		// each address holds info about what type of block it should be
+//-------------------------------------------- Non-Driver Logic -----------------------------------
+	logic [9:0] out_posPacman_next
+	logic [3:0] data_fromPacman_next;
+	// VGA read from:
 	Board_RAM mem_board (.data(write_data), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
+
+	// gameLogic (PacmanNextLoc) Reads from:
+	Board_RAM win_condition_board (.data(write_data), .rdaddress(out_posPacman_next), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(data_fromPacman_next));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
-	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
-							.curr_block(pac_loc), .next_block(pac_next), .start(start));
+	gameLogic gl (
+    .clk(/*TODO*/), .reset,
+    .pacInUp(up), .pacInDown(down), .pacInLeft(left), .pacInRight(right),
+    .data_fromPacman_next,
 
-	enum {idle, clear_old, draw_pac, update} ps, ns;
+    // For Win Condition:
+    .out_posPacman_next,
 
-	always_comb begin
-		case (ps) 
-			idle: if (pac_loc != pac_next) ns = clear_old;
-					else ns = idle;
-			clear_old: 
-				ns = draw_pac;
-			draw_pac: ns = update;
-			update: 
-				ns = idle;
-		endcase
-	end 
+    // Status Signals (from control) - Not Neccessary:
+    //.ready, .userWon, .gameOver,
 
-	always_ff @(posedge clk[whichClock]) begin
-		if (reset) begin 
-			ps <= idle;
-		end
-		else ps <= ns;
-	end
-
-	always_ff @(posedge clk[whichClock]) begin 
-		if (reset) begin
-			pac_loc <= 495;
-			wren <= 0;
-		end
-		if (start) begin
-			pac_loc <= 495;
-			wren <= 0;
-		end
-		if (ps == idle) begin
-			wren <= 0;
-		end
-		if (ps == clear_old) begin
-			wren <= 1;
-			write_data <= 4'b0000;
-			write_addr <= pac_loc;
-		end
-		if (ps == draw_pac) begin
-			wren <= 1;
-			write_data <= 4'b0011;
-			write_addr <= pac_next;
-		end
-		if (ps == update) begin
-			pac_loc <= pac_next;
-			wren <= 0;
-		end
-	end
+    // Logic for GameBoard:
+    .data2Write(write_data),
+    .writeAddr(write_addr),
+    .writeEn(wren)
+);  
+	
 	
 endmodule  // DE1_SoC
