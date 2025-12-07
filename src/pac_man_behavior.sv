@@ -4,12 +4,13 @@
 // Class: EE 371
 
 
-module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_block, start);
+module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_block, start, done);
     
     input logic clk, reset, start;
     input logic up, down, left, right;
     input logic [9:0] curr_block;
     output logic [9:0] next_block;
+    output logic done;
     logic [9:0] temp_next;
     logic [4:0] temp_block_addr;
     logic [31:0] data_from_rom;
@@ -31,6 +32,7 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
                 if (start) ns = s_curr;
                 else ns = s_idle;
             end
+            
             s_curr: ns = s_temp;
             s_temp: ns = s_delay;
             s_delay: ns = s_check;
@@ -62,7 +64,10 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
     end
 
     always_ff @(posedge clk) begin
-        if (ps == s_curr) curr_block_reg <= curr_block;
+        if (ps == s_curr) begin
+            curr_block_reg <= curr_block;
+            done <= 0;
+        end
 
         if (ps == s_temp) temp_next_reg <= temp_next;
 
@@ -70,6 +75,7 @@ module pac_man_behavior (clk, reset, up, down, left, right, curr_block, next_blo
         if (ps == s_check) begin
             if (canMove)
                 next_block <= temp_next_reg;
+                done <= 1;
             else
                 next_block <= next_block;
         end

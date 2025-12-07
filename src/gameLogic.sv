@@ -1,6 +1,6 @@
 
 module gameLogic(
-    input logic clk, reset,
+    input logic clk, reset, playAgain,
     input logic pacInUp, pacInDown, pacInLeft, pacInRight,
     input logic [3:0] data_fromPacman_next,
 
@@ -12,12 +12,12 @@ module gameLogic(
     // Logic for GameBoard:
     output logic [3:0] data2Write,
     output logic [9:0] writeAddr,
-    output logic writeEn,
+    output logic writeEn
 );  
 
 // Status Signals (from datapath):
-logic boardLoaded, start, all_next_pos_ready, board_fully_written, checkWin, checkLoss, playagain;
-logic updateCurrPos;
+    logic boardLoaded, start, all_next_pos_ready, board_fully_written, checkWin, checkLoss;
+    logic updateCurrPos;
 
 //----------------------------------------- Control -----------------------------------------------
 
@@ -52,7 +52,7 @@ logic updateCurrPos;
             end
 
             s_beginWrite2Board: begin
-                ns = s_Write2Board;
+                ns = s_write2Board;
             end
 
             s_write2Board: begin
@@ -69,7 +69,7 @@ logic updateCurrPos;
 
             s_updateCurrPos: begin
                 updateCurrPos = 1;
-                ns = beginLoadPos;
+                ns = s_beginDetNextPos;
 
             end
 
@@ -88,12 +88,12 @@ logic updateCurrPos;
     // Character Positions:
     logic [9:0] posPacman, posPacman_next;
     logic [9:0] posBlinky, posBlinky_next;
-    //logic [9:0] posPinky, posPinky_next;
-    //logic [9:0] posInky, posInky_next;
-    //logic [9:0] posClyde, posClyde_next;
+    logic [9:0] posPinky, posPinky_next;
+    logic [9:0] posInky, posInky_next;
+    logic [9:0] posClyde, posClyde_next;
 
     // Process Start Signals:
-    logic beginLoad, beginLoadPos, beginWriteBoard
+    logic beginLoad, beginLoadPos, beginWriteBoard;
     
     always_ff @(posedge clk) begin : DelayedControlSignals
         if (s_beginLoadBoard) 
@@ -107,10 +107,12 @@ logic updateCurrPos;
             beginLoadPos <= 0;
         
         if (s_beginWrite2Board)
-            beginWriteBoard = 1;
+            beginWriteBoard <= 1;
         else 
-            beginwriteBoard = 0;
+            beginWriteBoard <= 0;
     end //always_ff
+
+    //assign beginLoadPos = s_beginDetNextPos;
 
     // s_loadBoard + s_updateCurrPos: -------------------------------------------------------------
     always_ff @(posedge clk) begin : resetCharPos
@@ -120,6 +122,9 @@ logic updateCurrPos;
             //posPinky <= 10'd369;
             //posInky <= 10'd430;
             //posClyde <= 10'd433;
+
+            //To By pass reseting:
+            boardLoaded <= 1;
         end
 
         if (updateCurrPos) begin
@@ -132,7 +137,6 @@ logic updateCurrPos;
     end
 
         //TODO: RESET BOARD
-    
 
     // s_detNextPos: ------------------------------------------------------------------------------
         logic blinkyDone, pinkyDone, inkyDone, clydeDone, pacmanDone;
@@ -142,15 +146,15 @@ logic updateCurrPos;
         pac_man_behavior pac (.clk(clk), .reset(reset), .up(pacInUp), .down(pacInDown), 
                             .left(pacInLeft), .right(pacInRight), .curr_block(posPacman),
                             .next_block(posPacman_next), .start(beginLoadPos), 
-                            .done(/*TODO*/));
+                            .done(pacmanDone));
 
         blinky_behavior blinky (
-            .clk, .reset .start(beginLoadPos),
-            .currPos(posBlinky), .targetPos(posPacman), nextPos(posBlinky_next),
-            .done(blinkyDone), .ready(blinkyReady);
+            .clk, .reset, .start(beginLoadPos),
+            .currPos(posBlinky), .targetPos(posPacman), .nextPos(posBlinky_next),
+            .done(blinkyDone), .ready(blinkyReady)
         );
 
-        assign all_next_pos_ready = blinkyDone; /*& pinkyDone & inkyDone & clydeDone & pacmanDone;*/
+        assign all_next_pos_ready = blinkyDone & pacmanDone; /*& pinkyDone & inkyDone & clydeDone;*/
 
     // s_writeBoard: ------------------------------------------------------------------------------
         logic finished_boardWrite;
@@ -169,7 +173,7 @@ logic updateCurrPos;
 
         //TODO: CheckWin
         logic [8:0] numFoodEaten;
-        checkWinLogic #(.NUM_FOOD(/*TODO*/)) winCondition (
+        checkWinLogic #(.NUM_FOOD(100)) winCondition (
             .clk, .reset(reset | (ps == s_beginLoadBoard)), .readData(data_fromPacman_next), 
             .userWon(checkWin), .count(numFoodEaten)
         );

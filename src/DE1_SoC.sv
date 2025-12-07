@@ -94,6 +94,8 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 //-------------------------------------------- Non-Driver Logic -----------------------------------
 	logic [9:0] out_posPacman_next
 	logic [3:0] data_fromPacman_next;
+
+	logic gameClk = clk[1]
 	// VGA read from:
 	Board_RAM mem_board (.data(write_data), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
 
@@ -105,7 +107,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
 	gameLogic gl (
-    .clk(/*TODO*/), .reset,
+    .clk(gameClk), .reset,
     .pacInUp(up), .pacInDown(down), .pacInLeft(left), .pacInRight(right),
     .data_fromPacman_next,
 

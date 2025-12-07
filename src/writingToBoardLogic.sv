@@ -23,8 +23,8 @@ module writingToBoardLogic (
     output logic writeEn, finished
 );
 
-    enum {idle, write0Pac, writePac, write0Inky, writeInky, write0Clyde, writeClyde, 
-                write0Pinky, writePinky, write0Blinky, writeBlinky, done} ps, ns;
+    enum {idle, write0Pac, writePac, /*write0Inky, writeInky, write0Clyde, writeClyde, 
+                write0Pinky, writePinky,*/ write0Blinky, writeBlinky, done} ps, ns;
 
     always_ff @(posedge clk) begin
         if (reset)
@@ -57,7 +57,7 @@ module writingToBoardLogic (
             end
 
             writePac: begin
-                ns = write0Inky;
+                ns = write0Blinky;
 
                 finished = 0;
 
@@ -66,65 +66,65 @@ module writingToBoardLogic (
                 writeAddr = posPacman_next;
             end
 
-            write0Inky: begin
-                ns = writeInky;
+            // write0Inky: begin
+            //     ns = writeInky;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 0;
-                writeAddr = posInky;
-            end
+            //     writeEn = 1;
+            //     data2Write = 0;
+            //     writeAddr = posInky;
+            // end
 
-            writeInky: begin
-                ns = write0Clyde;
+            // writeInky: begin
+            //     ns = write0Clyde;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 4'd5;
-                writeAddr = posInky_next;
-            end
+            //     writeEn = 1;
+            //     data2Write = 4'd5;
+            //     writeAddr = posInky_next;
+            // end
 
-            write0Clyde: begin
-                ns = writeClyde;
+            // write0Clyde: begin
+            //     ns = writeClyde;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 0;
-                writeAddr = posClyde;
-            end
+            //     writeEn = 1;
+            //     data2Write = 0;
+            //     writeAddr = posClyde;
+            // end
 
-            writeClyde: begin
-                ns = write0Pinky;
+            // writeClyde: begin
+            //     ns = write0Pinky;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 4'd7;
-                writeAddr = posClyde_next;
-            end
+            //     writeEn = 1;
+            //     data2Write = 4'd7;
+            //     writeAddr = posClyde_next;
+            // end
 
-            write0Pinky: begin
-                ns = writePinky;
+            // write0Pinky: begin
+            //     ns = writePinky;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 0;
-                writeAddr = posPinky;
-            end
+            //     writeEn = 1;
+            //     data2Write = 0;
+            //     writeAddr = posPinky;
+            // end
 
-            writePinky: begin
-                ns = write0Blinky;
+            // writePinky: begin
+            //     ns = write0Blinky;
 
-                finished = 0;
+            //     finished = 0;
 
-                writeEn = 1;
-                data2Write = 4'd6;
-                writeAddr = posPinky_next;
-            end
+            //     writeEn = 1;
+            //     data2Write = 4'd6;
+            //     writeAddr = posPinky_next;
+            // end
 
             write0Blinky: begin
                 ns = writeBlinky;

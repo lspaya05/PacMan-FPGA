@@ -1,7 +1,7 @@
 module checkWinLogic # (
     parameter int NUM_FOOD = 5
 ) (
-    input logic clk, reset
+    input logic clk, reset,
     input logic [3:0] read_data,
     output logic userWon,
     output logic [8:0] count
