@@ -1,23 +1,32 @@
 
 module ghostNextLoc_tb();
-
+    logic clk, reset, start, done, ready;
     logic [9:0] currPos, targetPos;
-    logic [31:0] surroundingContainBlock [3:0];
-    logic [3:0] surroundingBlockAddr [3:0];
     logic [9:0] nextPos;
-    logic [:0] ghostPosX, ghostPosY;
+    logic [4:0] ghostPosX, ghostPosY;
 
     ghostNextLoc dut (.*);
+    
+    int CLOCK_DELAY = 200;
+    //Sets up the clock 
+    initial begin 
+		clk <= 0;
+		forever #(CLOCK_DELAY/2) clk <= ~clk;
+	end //initial
 
-    romFile dut (.*);
-
+    int i;
     initial begin
-        currPos = 134; targetPos = 665; #50;
-        currPos = 20; targetPos = 78; #50;
-        currPos = 20; targetPos = 78; #50;
-        currPos = 20; targetPos = 78; #50;
-        currPos = 20; targetPos = 78; #50;
+        reset = 1; @(posedge clk);
+        for (i = 134; i < 153; i++) begin
+            reset = 0;
+            currPos = i; targetPos = 10'd646; start = 1; @(posedge clk);
+                                                             @(posedge clk);
+                                                             @(posedge clk);
+                                                             @(posedge clk);
+                                                             @(posedge clk);
+            start = 0;                                       @(posedge clk);
+        end 
 
-
-    end
+        $stop;
+    end //initial
 endmodule

@@ -14,18 +14,23 @@
 // Output:
 //      - r_data: NUM_READ number of data read signals, each with DATA_WIDTH number of bits.
 //              Data to read from the register file.
-module romFile #(
+module romFile_ghost #(
     parameter int DATA_WIDTH = 32, 
-    parameter int ADDR_WIDTH = 5,
-    parameter int NUM_READ = 17
+    parameter int ADDR_WIDTH = 5
 ) (
-    input logic [ADDR_WIDTH - 1 : 0] r_addr [NUM_READ - 1 : 0],
-	output logic [DATA_WIDTH - 1 : 0] r_data [NUM_READ - 1 : 0]
+    input logic clk,
+    input logic [ADDR_WIDTH - 1 : 0] r_addr_up,
+    input logic [ADDR_WIDTH - 1 : 0] r_addr_down,
+    input logic [ADDR_WIDTH - 1 : 0] r_addr_left,
+    input logic [ADDR_WIDTH - 1 : 0] r_addr_right,
+
+	output logic [DATA_WIDTH - 1 : 0] r_data_up,
+    output logic [DATA_WIDTH - 1 : 0] r_data_down,
+	output logic [DATA_WIDTH - 1 : 0] r_data_left,
+	output logic [DATA_WIDTH - 1 : 0] r_data_right
 );
     // The D Flip Flops:
     logic [DATA_WIDTH - 1 : 0] mem [0:2**ADDR_WIDTH-1];
-    
-    int i;
     
     // Memory for the valid position ROM.
     initial begin
@@ -54,12 +59,13 @@ module romFile #(
         mem[22] = 32'b11111111111111111111111111111111;
         mem[23] = 32'b11111111111111111111111111111111;
     end 
-    
+
     // Read Data (Ends up being a bunch of Muxes): 
-    always_comb begin : ReadLogic
-        for (i = 0; i < NUM_READ; i++) begin
-            r_data[i] <= mem[r_addr[i]];
-        end 
+    always_ff @(posedge clk) begin
+        r_data_up <= mem[r_addr_up];
+        r_data_down <= mem[r_addr_down];
+        r_data_left <= mem[r_addr_left];
+        r_data_right <= mem[r_addr_right]; 
     end
 
 endmodule

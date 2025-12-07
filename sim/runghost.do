@@ -15,7 +15,9 @@ vlib work
 #    their own "vlog" line below.
 
 # Source: vlog "../src/" 
-vlog "../src/ghostNextLoc.sv"
+vlog "../src/ghostBehavior/ghostNextLoc.sv"
+vlog "../src/ghostBehavior/pullGhostData.sv"
+vlog "../src/ghostBehavior/romFile_ghost.sv"
 
 # Testbench: vlog "../tb/"
 vlog "../tb/ghostNextLoc_tb.sv"
@@ -25,7 +27,7 @@ vlog "../tb/ghostNextLoc_tb.sv"
 #    the testbench module you want to execute.
 #  - If you need the altera_mf_ver library, add "-Lf altera_mf_lib"
 #    (no quotes) to the end of the vsim command
-vsim -voptargs="+acc" -t 1ps -lib work DE1_SoC_tb -Lf altera_mf_ver 
+vsim -voptargs="+acc" -t 1ps -lib work ghostNextLoc_tb -Lf altera_mf_ver 
 
 
 

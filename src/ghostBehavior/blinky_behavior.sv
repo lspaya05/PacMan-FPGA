@@ -9,15 +9,10 @@
 
 
 module blinky_behavior (
+    input logic clk, reset,
     input logic [9:0] currPos, pacPos,
-    input logic [31:0]surroundingContainBlock [3:0], 
-
-    output logic [3:0] surroundingBlockAddr [3:0];
     output logic [9 : 0] nextPos
 );
-    // Dead logic 
-    logic [ : 0] ghostPosX;
-    logic [ : 0] ghostPosY;
 
     ghostNextLoc blinky (.currPos, .targetPos(pacPos), .surroundingContainBlock, 
                     .surroundingBlockAddr, .nextPos, .ghostPosX, .ghostPosY);
