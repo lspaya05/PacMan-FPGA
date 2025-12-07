@@ -75,25 +75,39 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic [4:0] local_x; // 0 through 19, for each pixel in the block
 	logic [4:0] local_y; // 0 through 19, for each pixel in the block
 	logic [3:0] block_type; // the type of block to draw
+	logic [9:0] read_addr;
 
 	logic wren;
 	logic [3:0] write_data;
 	logic [9:0] write_addr;
+	logic hold;
+	logic [3:0] initial_data;
+	logic [9:0] overwrite_addr;
+	logic [3:0] write_data_final;
+	logic [9:0] write_addr_final;
 
 	assign block_x  = x / 20;        
 	assign block_y  = y / 20;        
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
+	assign read_addr = block_y * 32 + block_x;
+
+	// muxes for determining whether to reset board or continue updating the game
+	assign write_data_final = hold ? initial_data : write_data;
+	assign write_addr_final = hold ? overwrite_addr : write_addr;
 
 	// there are 768 blocks in the game board
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	Board_RAM mem_board (.data(write_data), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
+	Board_RAM mem_board (.data(write_data_final), .rdaddress(read_addr), .rdclock(CLOCK_50), .wraddress(write_addr_final), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
+
+	// module for resetting the game board when reset is hit
+	reset_board res (.clk(CLOCK_50), .reset(reset), .hold(hold), .overwrite_addr(overwrite_addr), .initial_data(initial_data));
 
 	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next), .start(start));
