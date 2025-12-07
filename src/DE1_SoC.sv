@@ -67,11 +67,11 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	); // video_driver
 	
 	// Hex Eat Assignment: 
-	always_ff @(posedge clk) begin
+	always_ff @(posedge CLOCK_50) begin
 		if (reset) begin
-			HEX0 <= 1;
-		 	HEX1 <= 1;
-		 	HEX2 <= 1;
+			HEX0 <= 7'b1111111;
+		 	HEX1 <= 7'b1111111;
+		 	HEX2 <= 7'b1111111;
 		end else if (start) begin
 			HEX0 <= T;
 		 	HEX1 <= A;
