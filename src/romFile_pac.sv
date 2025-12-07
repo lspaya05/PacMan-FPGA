@@ -1,17 +1,26 @@
+// Name: Leonard Paya, Rhiannon Garnier
+// ID: 2200906, 2336462
+// Due Date: 12/07/2025
+// Class: EE 371
 
-module romFile_pac #(
-    parameter int DATA_WIDTH = 32, 
-    parameter int ADDR_WIDTH = 5
-) (
+// This a romFile that contains all possible locations pacman can possibly move. Any coordinates
+//      with the value one means that pacman cannot move there. This ROM file has a single read
+//      port, where an entire rows data is valid at the next positive edge of the clock.
+
+// Input: 
+//      - clk: 1 bit clock signal.
+//      - r_addr: an 5 bit signal that represets the address in the rom we want to read a row from.
+// Outputs:
+//      - r_data: an 32 bit signal that holds all valid positions in a certain row.
+
+module romFile_pac (
     input logic clk,
-    input logic [ADDR_WIDTH - 1 : 0] r_addr,
-	output logic [DATA_WIDTH - 1 : 0] r_data
+    input logic [5 - 1 : 0] r_addr,
+	output logic [32 - 1 : 0] r_data
 );
     // The D Flip Flops:
-    logic [DATA_WIDTH - 1 : 0] mem [0:2**ADDR_WIDTH-1];
-    
-    int i;
-    
+    logic [32 - 1 : 0] mem [0:2**(5) - 1];
+        
     // Memory for the valid position ROM.
     initial begin
         mem[0] = 32'b11111111111111111111111111111111;
@@ -38,11 +47,11 @@ module romFile_pac #(
         mem[21] = 32'b11111111111111111111111111111111;
         mem[22] = 32'b11111111111111111111111111111111;
         mem[23] = 32'b11111111111111111111111111111111;
-    end 
+    end // initial
     
     // Read Data (Ends up being a bunch of Muxes): 
     always_ff @(posedge clk) begin
         r_data <= mem[r_addr];
-    end
+    end // always_ff
 
-endmodule
+endmodule //romFile_pac
