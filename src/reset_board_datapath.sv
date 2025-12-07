@@ -14,7 +14,7 @@ module reset_board_datapath (clk, reset, overwrite_addr, initial_data, last_addr
     input logic load, get_data, incr;
     logic [3:0] data_from_rom;
 
-    assign last_addr_reached = (overwrite_addr == 768);
+    assign last_addr_reached = (overwrite_addr == 10'b1011111111);
 
     resetting_rom rom (.address(overwrite_addr), .clock(clk), .q(data_from_rom));
 

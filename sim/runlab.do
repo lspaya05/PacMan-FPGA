@@ -31,6 +31,7 @@ vlog "../src/romFile_pac.sv"
 vlog "../src/reset_board.sv" 
 vlog "../src/reset_board_datapath.sv" 
 vlog "../src/reset_board_control.sv" 
+vlog "../src/check_done.sv" 
 
 
 # Testbench: vlog "../tb/"
@@ -38,6 +39,7 @@ vlog "../tb/romFile_tb.sv"
 vlog "../tb/pac_man_behavior_tb.sv"
 vlog "../tb/DE1_SoC_tb.sv"
 vlog "../tb/reset_board_tb.sv"
+vlog "../tb/check_done_tb.sv"
 
 
 # Call vsim to invoke simulator
@@ -45,14 +47,14 @@ vlog "../tb/reset_board_tb.sv"
 #    the testbench module you want to execute.
 #  - If you need the altera_mf_ver library, add "-Lf altera_mf_lib"
 #    (no quotes) to the end of the vsim command
-vsim -voptargs="+acc" -t 1ps -lib work test_reset_tb -Lf altera_mf_ver 
+vsim -voptargs="+acc" -t 1ps -lib work check_done_tb -Lf altera_mf_ver 
 
 
 
 # Source the wave do file
 #  - This should be the file that sets up the signal window for
 #    the module you are testing.
-do test_reset_wave.do
+do check_done_wave.do
 
 
 # Set the window types

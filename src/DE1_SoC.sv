@@ -26,7 +26,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic [7:0] r, g, b;
 	
 	video_driver #(.WIDTH(640), .HEIGHT(480))
-		v1 (.CLOCK_50, .reset, .x, .y, .r, .g, .b,
+		v1 (.CLOCK_50, .reset(reset), .x, .y, .r, .g, .b,
 			 .VGA_R, .VGA_G, .VGA_B, .VGA_BLANK_N,
 			 .VGA_CLK, .VGA_HS, .VGA_SYNC_N, .VGA_VS);
 	
@@ -37,19 +37,19 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	assign HEX4 = '1;
 	assign HEX5 = '1;
 
-	wire up;
-    wire down;
-    wire left;
-    wire right;
-    wire b1;
+	logic up;
+    logic down;
+    logic left;
+    logic right;
+    logic b1;
+	logic a1;
 
-    wire latch;
-    wire pulse;
+    logic latch;
+    logic pulse;
     
     assign V_GPIO[27] = pulse;
     assign V_GPIO[26] = latch;
 	logic start;
-	logic select;
 
 	n8_driver driver(
         .clk(CLOCK_50),
@@ -60,9 +60,9 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
         .down(down),
         .left(left),
         .right(right),
-        .select(select),
+        .select(reset),
         .start(start),
-        .a(reset),
+        .a(a1),
         .b(b1)
     );
 
@@ -75,7 +75,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	logic [4:0] local_x; // 0 through 19, for each pixel in the block
 	logic [4:0] local_y; // 0 through 19, for each pixel in the block
 	logic [3:0] block_type; // the type of block to draw
-	logic [9:0] read_addr;
 
 	logic wren;
 	logic [3:0] write_data;
@@ -90,7 +89,6 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	assign block_y  = y / 20;        
 	assign local_x = x % 20;        
 	assign local_y = y % 20;  
-	assign read_addr = block_y * 32 + block_x;
 
 	// muxes for determining whether to reset board or continue updating the game
 	assign write_data_final = hold ? initial_data : write_data;
@@ -100,15 +98,13 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 	// initial game board RAM has 768 addresses
 		// each address is a block
 		// each address holds info about what type of block it should be
-	Board_RAM mem_board (.data(write_data_final), .rdaddress(read_addr), .rdclock(CLOCK_50), .wraddress(write_addr_final), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
+	Board_RAM mem_board (.data(write_data_final), .rdaddress(block_y * 32 + block_x), .rdclock(CLOCK_50), .wraddress(write_addr_final), .wrclock(CLOCK_50), .wren(wren), .q(block_type));
 
 	// type_rom_address = block_type * 400 + (local_y * 20 + local_x)
 	// output of type_rom is pixel color {r, g, b}
 	type_rom mem_type (.address(block_type * 400 + (local_y * 20 + local_x)), .clock(CLOCK_50), .q({r, g, b})); 
 
-	// module for resetting the game board when reset is hit
-	reset_board res (.clk(CLOCK_50), .reset(reset), .hold(hold), .overwrite_addr(overwrite_addr), .initial_data(initial_data));
-
+	// module to determine the next location for pac to move
 	pac_man_behavior pac (.clk(CLOCK_50), .reset(reset), .up(up), .down(down), .left(left), .right(right), 
 							.curr_block(pac_loc), .next_block(pac_next), .start(start));
 
