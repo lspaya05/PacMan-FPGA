@@ -66,9 +66,19 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
 		.VGA_CLK, .VGA_HS, .VGA_SYNC_N, .VGA_VS
 	); // video_driver
 	
-	assign HEX0 = T;
-	assign HEX1 = A;
-	assign HEX2 = E;
+	// Hex Eat Assignment: 
+	always_ff @(posedge clk) begin
+		if (reset) begin
+			HEX0 <= 1;
+		 	HEX1 <= 1;
+		 	HEX2 <= 1;
+		end else if (start) begin
+			HEX0 <= T;
+		 	HEX1 <= A;
+		 	HEX2 <= E;
+		end
+	end
+
 	assign HEX3 = '1;
 	assign HEX4 = '1;
 	assign HEX5 = '1;
