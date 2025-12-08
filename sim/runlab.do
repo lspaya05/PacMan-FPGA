@@ -38,6 +38,7 @@ vlog "../tb/pac_man_behavior_tb.sv"
 vlog "../tb/DE1_SoC_tb.sv"
 vlog "../tb/reset_board_tb.sv"
 vlog "../tb/check_done_tb.sv"
+vlog "../tb/romFile_pac_tb.sv"
 
 
 # Call vsim to invoke simulator
@@ -45,14 +46,14 @@ vlog "../tb/check_done_tb.sv"
 #    the testbench module you want to execute.
 #  - If you need the altera_mf_ver library, add "-Lf altera_mf_lib"
 #    (no quotes) to the end of the vsim command
-vsim -voptargs="+acc" -t 1ps -lib work pac_man_behavior_tb -Lf altera_mf_ver 
+vsim -voptargs="+acc" -t 1ps -lib work romFile_pac_tb -Lf altera_mf_ver 
 
 
 
 # Source the wave do file
 #  - This should be the file that sets up the signal window for
 #    the module you are testing.
-do pac_man_behavior_wave.do
+do romFile_pac_wave.do
 
 
 # Set the window types
